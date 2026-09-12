@@ -2,8 +2,19 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>SEHATI - Ruang Aman Ibu Hebat & Materi Lengkap</title>
+
+    <!-- PWA: manifest & ikon -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#E53E3E">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SEHATI">
+    <meta name="description" content="Program edukasi psikologi dan pengasuhan sosial emosional untuk orang tua Indonesia.">
+
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -2033,6 +2044,15 @@
                 link.click();
             }).catch(() => {
                 alert('Gagal membuat gambar.');
+            });
+        }
+
+        // Daftarkan service worker agar aplikasi bisa dibuka offline
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {
+                    // Diamkan jika gagal (misal dibuka langsung dari file lokal tanpa server)
+                });
             });
         }
     </script>
