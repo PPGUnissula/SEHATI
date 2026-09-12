@@ -33,19 +33,35 @@ self.addEventListener('activate', (event) => {
 // Strategi: coba ambil dari jaringan dulu, simpan salinan ke cache,
 // kalau gagal (offline) ambil dari cache sebagai cadangan.
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+
+  // Keamanan: hanya proses request GET yang aman untuk di-cache
+  if (req.method !== 'GET') return;
+
+  // Keamanan: jangan pernah cache respons yang gagal/dialihkan mencurigakan,
+  // dan lewati skema non-http (mis. chrome-extension://) yang tidak didukung Cache API
+  let url;
+  try {
+    url = new URL(req.url);
+  } catch (e) {
+    return;
+  }
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
 
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, clone).catch(() => {});
-        });
+        // Hanya simpan respons yang benar-benar berhasil (200 OK)
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(req, clone).catch(() => {});
+          });
+        }
         return response;
       })
       .catch(() => {
-        return caches.match(event.request).then((cached) => {
+        return caches.match(req).then((cached) => {
           return cached || caches.match('./index.html');
         });
       })
